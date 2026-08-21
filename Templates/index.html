@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReviveAI - Revenue Recovery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: #2563eb;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .customers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        input {
+            padding: 10px;
+            width: 200px;
+            margin-right: 10px;
+        }
+
+        #result {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>ReviveAI</h1>
+    <p>AI-Powered Revenue Recovery Dashboard</p>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Revenue Recovery Overview</h2>
+        <h3>Total Lost Revenue: ₹{{ total_lost }}</h3>
+        <p>ReviveAI identifies abandoned carts and estimates their recovery potential.</p>
+    </div>
+
+    <div class="card">
+        <h2>Customers</h2>
+
+        <div class="customers">
+            {% for customer in customers %}
+            <div class="card">
+                <h3>{{ customer.name }}</h3>
+                <p>Cart Value: ₹{{ customer.cart_value }}</p>
+                <p>Status: {{ customer.status }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Recovery Prediction</h2>
+
+        <input type="number" id="cartValue" placeholder="Enter cart value">
+
+        <button onclick="predictRecovery()">
+            Predict
+        </button>
+
+        <div id="result"></div>
+    </div>
+
+</div>
+
+<script>
+async function predictRecovery() {
+
+    const cartValue = document.getElementById("cartValue").value;
+    const result = document.getElementById("result");
+
+    if (!cartValue) {
+        result.innerText = "Please enter a cart value.";
+        return;
+    }
+
+    result.innerText = "Predicting...";
+
+    try {
+
+        const response = await fetch("/predict", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                cart_value: cartValue
+            })
+        });
+
+        const data = await response.json();
+
+        result.innerText =
+            "Recovery Probability: " +
+            data.recovery_probability +
+            "% - " +
+            data.message;
+
+    } catch (error) {
+
+        result.innerText = "Error connecting to the server.";
+
+    }
+}
+</script>
+
+</body>
+</html>
